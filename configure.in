@@ -3789,6 +3789,24 @@ AS_CASE("$cross_compiling:${LIBPATHENV}", [yes:* | no:], [], [
     )
 ])
 
+AC_ARG_ENABLE([lttng-ust],
+	[  --enable-lttng-ust      enable tracing feature based on LTTng UST (default no) ],,
+	[ enable_lttng_ust="no" ],)
+
+if test "x${enable_lttng_ust}" = xyes; then
+	AC_CHECK_HEADERS([lttng/tracepoint.h lttng/tracepoint-event.h],,
+		AC_MSG_ERROR(headers of LTTng not found))
+	AC_DEFINE_UNQUOTED(HAVE_LTTNG_UST, 1, [have LTTng ust])
+fi
+
+if test "x${enable_lttng_ust}" = xyes ; then
+  AC_MSG_NOTICE([Enabling LTTng ust (-llttng-ust -lurcu-bp)])
+  RUBY_APPEND_OPTION(LIBS, -llttng-ust -lurcu-bp -ldl)
+  RUBY_APPEND_OPTION(CFLAGS, -DENABLE_LTTNG_UST)
+  BUILD_LTTNG_UST=yes
+  AC_SUBST(BUILD_LTTNG_UST)
+fi
+
 AC_ARG_ENABLE(dtrace,
         AS_HELP_STRING([--enable-dtrace],
         [enable DTrace for tracing inside ruby. enabled by default on systems having dtrace]),
