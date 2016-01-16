@@ -806,6 +806,11 @@ class RubyVM
       }
     end
 
+    def make_header_trace insn
+      tp_params = insn.opes.map {|o| "(int)(#{o[1]})" }.unshift(insn.name).join(", ")
+      commit "  tracepoint(ruby_vm_instruction, #{tp_params});"
+    end
+
     def make_header_pc insn
       commit  "  ADD_PC(1+#{@opn});"
       commit  "  PREFETCH(GET_PC());"
@@ -874,6 +879,7 @@ class RubyVM
       make_header_popn insn
       make_header_defines insn
       make_header_analysis insn
+      make_header_trace insn
       commit  "{"
     end
 
@@ -1209,6 +1215,28 @@ class RubyVM
   end
 
   ###################################################################
+  # insns_trace.inc
+  class InsnsTraceGenerator < SourceCodeGenerator
+    def generate
+      insn_trace_defs = []
+      @insns.each {|insn|
+        out = {:name => insn.name, :trace_args => [], :trace_fields => [] }
+        insn.opes.each_with_index {|op, i|
+          t = "int"
+          v = op[1]
+          param = "p_#{i}"
+          field = "ctf_integer_hex(#{t}, #{v}, #{param})"
+          out[:trace_args].push(t)
+          out[:trace_args].push(param)
+          out[:trace_fields].push(field)
+        }
+        insn_trace_defs << out
+      }
+      ERB.new(vpath.read('template/insns_trace.inc.tmpl')).result(binding)
+    end
+  end
+
+  ###################################################################
   # yasmdata.rb
   class YASMDataRbGenerator < SourceCodeGenerator
     def generate
@@ -1264,15 +1292,16 @@ class RubyVM
 
   class SourceCodeGenerator
     Files = { # codes
-      'vm.inc'         => VmBodyGenerator,
-      'vmtc.inc'       => VmTCIncGenerator,
-      'insns.inc'      => InsnsIncGenerator,
-      'insns_info.inc' => InsnsInfoIncGenerator,
-    # 'minsns.inc'     => MInsnsIncGenerator,
-      'optinsn.inc'    => OptInsnIncGenerator,
-      'optunifs.inc'   => OptUnifsIncGenerator,
-      'opt_sc.inc'     => OptSCIncGenerator,
-      'yasmdata.rb'    => YASMDataRbGenerator,
+      'vm.inc'          => VmBodyGenerator,
+      'vmtc.inc'        => VmTCIncGenerator,
+      'insns.inc'       => InsnsIncGenerator,
+      'insns_info.inc'  => InsnsInfoIncGenerator,
+    # 'minsns.inc'      => MInsnsIncGenerator,
+      'optinsn.inc'     => OptInsnIncGenerator,
+      'optunifs.inc'    => OptUnifsIncGenerator,
+      'opt_sc.inc'      => OptSCIncGenerator,
+      'insns_trace.inc' => InsnsTraceGenerator,
+      'yasmdata.rb'     => YASMDataRbGenerator,
     }
 
     def generate args = []

@@ -15,6 +15,11 @@
 static void vm_analysis_insn(int insn);
 #endif
 
+#define TRACEPOINT_DEFINE
+#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
+
+#include "insns_trace.inc"
+
 #if VMDEBUG > 0
 #define DECL_SC_REG(type, r, reg) register type reg_##r
 

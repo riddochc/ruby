@@ -1,0 +1,41 @@
+/**
+  This file contains instruction tracepoint definitions
+  and is generated with insns2vm.rb.
+
+  DO NOT TOUCH.  It WILL be overwritten.
+  Edit 'template/insns_trace.inc.tmpl' to make changes.
+
+  This is based on the file at
+  https://github.com/lttng/lttng-ust/blob/master/doc/examples/demo/ust_tests_demo2.h
+  and as a result is (C) 2011 Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+  Modified for ruby and (C) 2016 Chris Riddoch <riddochc@gmail.com>
+
+**/
+
+#undef TRACEPOINT_PROVIDER
+#define TRACEPOINT_PROVIDER ruby_vm_instruction
+
+#if !defined(_TRACEPOINT_UST_RUBY_VM_INSTS) || defined(TRACEPOINT_HEADER_MULTI_READ)
+#define _TRACEPOINT_UST_RUBY_VM_INSTS
+
+#include <lttng/tracepoint.h>
+
+<% indent_level = 27 %>
+<% insn_trace_defs.each do |t| %>
+
+TRACEPOINT_EVENT(ruby_vm_instruction, <%= t[:name] %>,
+                 TP_ARGS(<%= t[:trace_args].join(", ") %>),
+                 TP_FIELDS(<%= t[:trace_fields].join("\n" + (" " * indent_level)) %>
+                          )
+                 )
+TRACEPOINT_LOGLEVEL(ruby_vm_instruction, <%= t[:name] %>, TRACE_DEBUG_LINE)
+<% end %>
+
+#endif /* _TRACEPOINT_UST_RUBY_VM_INSTS */
+
+#undef TRACEPOINT_INCLUDE
+#define TRACEPOINT_INCLUDE "./insns_trace.inc"
+
+/* This part must be outside ifdef protection */
+#include <lttng/tracepoint-event.h>
+
