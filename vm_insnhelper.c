@@ -16,7 +16,6 @@
 #include "probes.h"
 #include "probes_helper.h"
 
-#define TRACEPOINT_DEFINE
 #define TRACEPOINT_PROBE_STATIC_LINKAGE
 #include "lttng_points.h"
 

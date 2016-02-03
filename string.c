@@ -19,7 +19,6 @@
 #include <assert.h>
 #include "id.h"
 
-#define TRACEPOINT_DEFINE
 #define TRACEPOINT_PROBE_STATIC_LINKAGE
 #include "lttng_points.h"
 
