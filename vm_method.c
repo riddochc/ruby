@@ -100,10 +100,6 @@ rb_clear_method_cache_by_class(VALUE klass)
     if (klass && klass != Qundef) {
 	int global = klass == rb_cBasicObject || klass == rb_cObject || klass == rb_mKernel;
 
-        if (tracepoint_enabled(ruby_vm, method_cache_clear)) {
-                tracepoint(ruby_vm, method_cache_clear, global ? "global" : rb_class2name(klass));
-        }
-
 	RUBY_DTRACE_HOOK(METHOD_CACHE_CLEAR, (global ? "global" : rb_class2name(klass)));
 
 	if (global) {
