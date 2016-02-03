@@ -807,7 +807,7 @@ class RubyVM
     end
 
     def make_header_trace insn
-      tp_params = insn.opes.map {|o| "(int)(#{o[1]})" }.unshift(insn.name).join(", ")
+      tp_params = insn.opes.map {|o| "#{o[1]}" }.unshift(insn.name).join(", ")
       commit "  tracepoint(ruby_vm_instruction, #{tp_params});"
     end
 
@@ -879,7 +879,7 @@ class RubyVM
       make_header_popn insn
       make_header_defines insn
       make_header_analysis insn
-      make_header_trace insn
+      # make_header_trace insn
       commit  "{"
     end
 
@@ -1222,13 +1222,15 @@ class RubyVM
       @insns.each {|insn|
         out = {:name => insn.name, :trace_args => [], :trace_fields => [] }
         insn.opes.each_with_index {|op, i|
-          t = "int"
+          typ = op[0]
           v = op[1]
           param = "p_#{i}"
-          field = "ctf_integer_hex(#{t}, #{v}, #{param})"
-          out[:trace_args].push(t)
+          field_class = "ctf_string(#{v}_class, rb_object_classname(#{param}))";
+          field_value = "ctf_integer_hex(uintptr_t, #{v}, #{param})"
+          out[:trace_args].push("long int")
           out[:trace_args].push(param)
-          out[:trace_fields].push(field)
+          out[:trace_fields].push(field_class)
+          out[:trace_fields].push(field_value)
         }
         insn_trace_defs << out
       }
