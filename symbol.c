@@ -15,7 +15,7 @@
 #include "gc.h"
 #include "probes.h"
 
-#define TRACEPOINT_PROBE_STATIC_LINKAGE
+#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
 #include "lttng_points.h"
 
 #ifndef SYMBOL_DEBUG

@@ -16,7 +16,7 @@
 #include "probes.h"
 #include "probes_helper.h"
 
-#define TRACEPOINT_PROBE_STATIC_LINKAGE
+#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
 #include "lttng_points.h"
 
 /* control stack frame */

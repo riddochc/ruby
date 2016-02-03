@@ -19,7 +19,7 @@
 #include <assert.h>
 #include "id.h"
 
-#define TRACEPOINT_PROBE_STATIC_LINKAGE
+#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
 #include "lttng_points.h"
 
 #define BEG(no) (regs->beg[(no)])
