@@ -98,9 +98,9 @@ TRACEPOINT_EVENT(ruby_vm,
                          const char*, message),
                  TP_FIELDS(
                          ctf_integer_hex(int, call_thread, thread)
-                         ctf_string(raise_class, cname)
+                         ctf_string(raise_class, classname)
                          ctf_string(raise_message, message)))
-TRACEPOINT_LOGLEVEL(ruby_vm, raise, TRACE_ERROR)
+TRACEPOINT_LOGLEVEL(ruby_vm, raise, TRACE_DEBUG_FUNCTION)
 
 TRACEPOINT_EVENT(ruby_vm,
                  load_entry,
@@ -112,7 +112,7 @@ TRACEPOINT_EVENT(ruby_vm,
                  load_return,
                  TP_ARGS(const char*, filename),
                  TP_FIELDS(ctf_string(load_filename, filename)))
-TRACEPOINT_LOGLEVEL(ruby_vm, load_entry, TRACE_DEBUG_FUNCTION)
+TRACEPOINT_LOGLEVEL(ruby_vm, load_return, TRACE_DEBUG_FUNCTION)
 
 TRACEPOINT_EVENT(ruby_vm,
                  require_entry,
@@ -154,14 +154,14 @@ TRACEPOINT_LOGLEVEL(ruby_vm, string_new, TRACE_DEBUG_FUNCTION)
 TRACEPOINT_EVENT(ruby_vm,
                  string_create,
                  TP_ARGS(int, length),
-                 TP_FIELDS(ctf_integer(string_length, length)))
+                 TP_FIELDS(ctf_integer(int, string_length, length)))
 TRACEPOINT_LOGLEVEL(ruby_vm, string_create, TRACE_DEBUG_FUNCTION)
 
 
 #endif /* _TRACEPOINT_UST_RUBY_VM_INSTS */
 
 #undef TRACEPOINT_INCLUDE
-#define TRACEPOINT_INCLUDE "./lttng.h"
+#define TRACEPOINT_INCLUDE "./lttng_points.h"
 
 /* This part must be outside ifdef protection */
 #include <lttng/tracepoint-event.h>
