@@ -440,7 +440,7 @@ rb_vm_pop_cfunc_frame(void)
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_RETURN, th->cfp->self, me->called_id, me->owner, Qnil);
     RUBY_DTRACE_CMETHOD_RETURN_HOOK(th, me->owner, me->called_id);
     if (tracepoint_enabled(ruby_vm, c_return)) {
-      tracepoint(ruby, c_return, (long long int)th, rb_class2name(me->owner), rb_id2name(me->called_id));
+      tracepoint(ruby_vm, c_return, (long long int)th, rb_class2name(me->owner), rb_id2name(me->called_id));
     }
     vm_pop_frame(th);
 }
