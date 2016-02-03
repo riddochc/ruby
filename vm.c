@@ -24,7 +24,7 @@
 #include "probes_helper.h"
 
 #define TRACEPOINT_DEFINE
-#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
+#define TRACEPOINT_PROBE_STATIC_LINKAGE
 #include "lttng_points.h"
 
 VALUE rb_str_append_literal(VALUE str, VALUE str2);

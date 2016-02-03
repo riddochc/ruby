@@ -9,7 +9,7 @@
 #include "probes.h"
 
 #define TRACEPOINT_DEFINE
-#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
+#define TRACEPOINT_PROBE_STATIC_LINKAGE
 #include "lttng_points.h"
 
 static VALUE ruby_dln_librefs;
