@@ -7,8 +7,6 @@
 #include "dln.h"
 #include "eval_intern.h"
 #include "probes.h"
-
-#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
 #include "lttng_points.h"
 
 static VALUE ruby_dln_librefs;
