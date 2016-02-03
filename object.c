@@ -1824,7 +1824,7 @@ rb_obj_alloc(VALUE klass)
 
     RUBY_DTRACE_CREATE_HOOK(OBJECT, rb_class2name(klass));
     if (tracepoint_enabled(ruby_vm, object_alloc)) {
-      tracepoint(ruby_vm, object_alloc, (long long int)th, rb_class2name(klass));
+      tracepoint(ruby_vm, object_alloc, rb_class2name(klass));
     }
 
     obj = (*allocator)(klass);

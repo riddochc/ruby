@@ -87,10 +87,8 @@ TRACEPOINT_LOGLEVEL(ruby_vm, symbol_create, TRACE_DEBUG_FUNCTION)
 
 TRACEPOINT_EVENT(ruby_vm,
                  object_alloc,
-                 TP_ARGS(int, thread,
-                         const char*, name),
-                 TP_FIELDS(ctf_integer_hex(int, call_thread, thread)
-                           ctf_string(object_class, name)))
+                 TP_ARGS(const char*, name),
+                 TP_FIELDS(ctf_string(object_class, name)))
 TRACEPOINT_LOGLEVEL(ruby_vm, object_alloc, TRACE_DEBUG_FUNCTION)
 
 TRACEPOINT_EVENT(ruby_vm,
