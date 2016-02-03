@@ -68,6 +68,9 @@ vm_call0_cfunc(rb_thread_t* th, struct rb_calling_info *calling, const struct rb
     VALUE val;
 
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(th, cc->me->owner, ci->mid);
+    if (tracepoint_enabled(ruby_vm, c_call)) {
+      tracepoint(ruby_vm, c_call, (long long int)th, rb_class2name(cc->me->owner), rb_id2name(ci->mid));
+    }
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_CALL, calling->recv, ci->mid, cc->me->owner, Qnil);
     {
 	rb_control_frame_t *reg_cfp = th->cfp;
@@ -100,7 +103,9 @@ vm_call0_cfunc(rb_thread_t* th, struct rb_calling_info *calling, const struct rb
     }
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_RETURN, calling->recv, ci->mid, callnig->cc->me->owner, val);
     RUBY_DTRACE_CMETHOD_RETURN_HOOK(th, cc->me->owner, ci->mid);
-
+    if (tracepoint_enabled(ruby_vm, c_return)) {
+      tracepoint(ruby_vm, c_return, (long long int)th, rb_class2name(cc->me->owner), rb_id2name(ci->mid));
+    }
     return val;
 }
 #else
@@ -117,6 +122,9 @@ vm_call0_cfunc_with_frame(rb_thread_t* th, struct rb_calling_info *calling, cons
     rb_block_t *blockptr = calling->blockptr;
 
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(th, me->owner, mid);
+    if (tracepoint_enabled(ruby_vm, c_call)) {
+      tracepoint(ruby_vm, c_call, (long long int)th, rb_class2name(me->owner), rb_id2name(mid));
+    }
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_CALL, recv, mid, me->owner, Qnil);
     {
 	rb_control_frame_t *reg_cfp = th->cfp;
@@ -138,6 +146,9 @@ vm_call0_cfunc_with_frame(rb_thread_t* th, struct rb_calling_info *calling, cons
     }
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_RETURN, recv, mid, me->owner, val);
     RUBY_DTRACE_CMETHOD_RETURN_HOOK(th, me->owner, mid);
+    if (tracepoint_enabled(ruby_vm, c_return)) {
+      tracepoint(ruby_vm, c_return, (long long int)th, rb_class2name(me->owner), rb_id2name(mid));
+    }
 
     return val;
 }

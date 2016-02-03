@@ -71,6 +71,7 @@ COMMONOBJS    = array.$(OBJEXT) \
 		inits.$(OBJEXT) \
 		insns_trace.$(OBJEXT) \
 		io.$(OBJEXT) \
+		lttng_points.$(OBJECT) \
 		marshal.$(OBJEXT) \
 		math.$(OBJEXT) \
 		node.$(OBJEXT) \

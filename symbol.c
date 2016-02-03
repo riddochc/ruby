@@ -15,6 +15,10 @@
 #include "gc.h"
 #include "probes.h"
 
+#define TRACEPOINT_DEFINE
+#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
+#include "lttng_points.h"
+
 #ifndef SYMBOL_DEBUG
 # define SYMBOL_DEBUG 0
 #endif
@@ -416,6 +420,9 @@ register_static_symid_str(ID id, VALUE str)
     OBJ_FREEZE(str);
     str = rb_fstring(str);
 
+    if (tracepoint_enabled(ruby_vm, symbol_create)) {
+      tracepoint(ruby_vm, symbol_create, RSTRING_PTR(str));
+    }
     RUBY_DTRACE_CREATE_HOOK(SYMBOL, RSTRING_PTR(str));
 
     register_sym(str, sym);
@@ -483,6 +490,9 @@ dsymbol_alloc(const VALUE klass, const VALUE str, rb_encoding * const enc, const
     register_sym(str, dsym);
     rb_hash_aset(global_symbols.dsymbol_fstr_hash, str, Qtrue);
 
+    if (tracepoint_enabled(ruby_vm, symbol_create)) {
+      tracepoint(ruby_vm, symbol_create, RSTRING_PTR(str));
+    }
     RUBY_DTRACE_CREATE_HOOK(SYMBOL, RSTRING_PTR(RSYMBOL(dsym)->fstr));
 
     return dsym;

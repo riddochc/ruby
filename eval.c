@@ -19,6 +19,10 @@
 #include "vm_core.h"
 #include "probes_helper.h"
 
+#define TRACEPOINT_DEFINE
+#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
+#include "lttng_points.h"
+
 NORETURN(void rb_raise_jump(VALUE, VALUE));
 
 VALUE rb_eLocalJumpError;
@@ -560,6 +564,10 @@ setup_exception(rb_thread_t *th, int tag, volatile VALUE mesg, VALUE cause)
     }
 
     if (tag != TAG_FATAL) {
+        if (tracepoint_enabled(ruby_vm, raise)) {
+                tracepoint(ruby_vm, raise, (long long int)th, rb_obj_classname(th->errinfo), RSTRING_PTR(mesg));
+        }
+
 	RUBY_DTRACE_HOOK(RAISE, rb_obj_classname(th->errinfo));
 	EXEC_EVENT_HOOK(th, RUBY_EVENT_RAISE, th->cfp->self, 0, 0, mesg);
     }

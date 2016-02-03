@@ -23,6 +23,10 @@
 #include "id.h"
 #include "probes.h"
 
+#define TRACEPOINT_DEFINE
+#define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
+#include "lttng_points.h"
+
 VALUE rb_cBasicObject;
 VALUE rb_mKernel;
 VALUE rb_cObject;
@@ -1819,6 +1823,9 @@ rb_obj_alloc(VALUE klass)
     }
 
     RUBY_DTRACE_CREATE_HOOK(OBJECT, rb_class2name(klass));
+    if (tracepoint_enabled(ruby_vm, object_alloc)) {
+      tracepoint(ruby_vm, object_alloc, (long long int)th, rb_class2name(klass));
+    }
 
     obj = (*allocator)(klass);
 
