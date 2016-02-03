@@ -153,8 +153,8 @@ TRACEPOINT_LOGLEVEL(ruby_vm, string_new, TRACE_DEBUG_FUNCTION)
 
 TRACEPOINT_EVENT(ruby_vm,
                  string_create,
-                 TP_ARGS(const char*, strdata),
-                 TP_FIELDS(ctf_string(string_data, strdata)))
+                 TP_ARGS(int, length),
+                 TP_FIELDS(ctf_integer(string_length, length)))
 TRACEPOINT_LOGLEVEL(ruby_vm, string_create, TRACE_DEBUG_FUNCTION)
 
 
