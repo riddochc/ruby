@@ -652,9 +652,6 @@ str_new0(VALUE klass, const char *ptr, long len, int termlen)
 	rb_raise(rb_eArgError, "negative string size (or size too big)");
     }
 
-    if (tracepoint_enabled(ruby_vm, string_new)) {
-      tracepoint(ruby_vm, string_new, ptr, len);
-    }
     RUBY_DTRACE_CREATE_HOOK(STRING, len);
 
     str = str_alloc(klass);
@@ -671,6 +668,11 @@ str_new0(VALUE klass, const char *ptr, long len, int termlen)
     }
     STR_SET_LEN(str, len);
     TERM_FILL(RSTRING_PTR(str) + len, termlen);
+
+    if (tracepoint_enabled(ruby_vm, string_new)) {
+      tracepoint(ruby_vm, string_new, RSTRING_LEN(str), RSTRING_PTR(str));
+    }
+
     return str;
 }
 
@@ -760,8 +762,8 @@ str_new_static(VALUE klass, const char *ptr, long len, int encindex)
 	str = str_new(klass, ptr, len);
     }
     else {
-        if (tracepoint_enabled(ruby_vm, string_new)) {
-           tracepoint(ruby_vm, string_new, ptr, len);
+        if (tracepoint_enabled(ruby_vm, string_new_static)) {
+           tracepoint(ruby_vm, string_new_static, len);
         }
 	RUBY_DTRACE_CREATE_HOOK(STRING, len);
 	str = str_alloc(klass);
