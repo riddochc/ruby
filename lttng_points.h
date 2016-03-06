@@ -147,22 +147,21 @@ TRACEPOINT_LOGLEVEL(ruby_vm, string_alloc, TRACE_DEBUG_FUNCTION)
 TRACEPOINT_EVENT(ruby_vm,
                  string_new,
                  TP_ARGS(int, length, const char*, text),
-                 TP_FIELDS(ctf_integer(int, string_length, length)
-                           ctf_sequence_text(char, string_text, text, size_t, length)))
+                 TP_FIELDS(ctf_sequence_text(char, string_text, text, size_t, length)))
 TRACEPOINT_LOGLEVEL(ruby_vm, string_new, TRACE_DEBUG_FUNCTION)
 
 TRACEPOINT_EVENT(ruby_vm,
                  string_new_static,
-                 TP_ARGS(int, length),
-                 TP_FIELDS(ctf_integer(int, string_length, length)))
+                 TP_ARGS(int, length, const char*, text),
+                 TP_FIELDS(ctf_sequence_text(char, string_text, text, size_t, length)))
 TRACEPOINT_LOGLEVEL(ruby_vm, string_new_static, TRACE_DEBUG_FUNCTION)
 
 
 TRACEPOINT_EVENT(ruby_vm,
-                 string_create,
-                 TP_ARGS(int, length),
-                 TP_FIELDS(ctf_integer(int, string_length, length)))
-TRACEPOINT_LOGLEVEL(ruby_vm, string_create, TRACE_DEBUG_FUNCTION)
+                 string_resurrect,
+                 TP_ARGS(int, length, const char*, text),
+                 TP_FIELDS(ctf_sequence_text(char, string_text, text, size_t, length)))
+TRACEPOINT_LOGLEVEL(ruby_vm, string_resurrect, TRACE_DEBUG_FUNCTION)
 
 
 #endif /* _TRACEPOINT_UST_RUBY_VM_INSTS */

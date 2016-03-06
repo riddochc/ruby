@@ -762,9 +762,6 @@ str_new_static(VALUE klass, const char *ptr, long len, int encindex)
 	str = str_new(klass, ptr, len);
     }
     else {
-        if (tracepoint_enabled(ruby_vm, string_new_static)) {
-           tracepoint(ruby_vm, string_new_static, len);
-        }
 	RUBY_DTRACE_CREATE_HOOK(STRING, len);
 	str = str_alloc(klass);
 	RSTRING(str)->as.heap.len = len;
@@ -774,6 +771,11 @@ str_new_static(VALUE klass, const char *ptr, long len, int encindex)
 	RBASIC(str)->flags |= STR_NOFREE;
     }
     rb_enc_associate_index(str, encindex);
+
+    if (tracepoint_enabled(ruby_vm, string_new_static)) {
+      tracepoint(ruby_vm, string_new_static, RSTRING_LEN(str), RSTRING_PTR(str));
+    }
+
     return str;
 }
 
@@ -1332,8 +1334,8 @@ VALUE
 rb_str_resurrect(VALUE str)
 {
     RUBY_DTRACE_CREATE_HOOK(STRING, RSTRING_LEN(str));
-    if (tracepoint_enabled(ruby_vm, string_create)) {
-      tracepoint(ruby_vm, string_create, RSTRING_LEN(str));
+    if (tracepoint_enabled(ruby_vm, string_resurrect)) {
+      tracepoint(ruby_vm, string_resurrect, RSTRING_LEN(str), RSTRING_PTR(str));
     }
     return str_duplicate(rb_cString, str);
 }
