@@ -7,6 +7,7 @@
 #include "dln.h"
 #include "eval_intern.h"
 #include "probes.h"
+#include "lttng_points.h"
 
 static VALUE ruby_dln_librefs;
 
@@ -704,6 +705,9 @@ rb_f_load(int argc, VALUE *argv)
 
     rb_scan_args(argc, argv, "11", &fname, &wrap);
 
+    if (tracepoint_enabled(ruby_vm, load_entry)) {
+      tracepoint(ruby_vm, load_entry, StringValueCStr(fname));
+    }
     RUBY_DTRACE_HOOK(LOAD_ENTRY, StringValuePtr(fname));
 
     orig_fname = FilePathValue(fname);
@@ -716,6 +720,9 @@ rb_f_load(int argc, VALUE *argv)
     }
     rb_load_internal(path, RTEST(wrap));
 
+    if (tracepoint_enabled(ruby_vm, load_return)) {
+      tracepoint(ruby_vm, load_return, StringValueCStr(fname));
+    }
     RUBY_DTRACE_HOOK(LOAD_RETURN, StringValuePtr(fname));
 
     return Qtrue;
@@ -965,6 +972,9 @@ rb_require_internal(VALUE fname, int safe)
     } volatile saved;
     char *volatile ftptr = 0;
 
+    if (tracepoint_enabled(ruby_vm, require_entry)) {
+      tracepoint(ruby_vm, require_entry, StringValueCStr(fname));
+    }
     RUBY_DTRACE_HOOK(REQUIRE_ENTRY, StringValuePtr(fname));
 
     TH_PUSH_TAG(th);
@@ -978,11 +988,17 @@ rb_require_internal(VALUE fname, int safe)
 	FilePathValue(fname);
 	rb_set_safe_level_force(0);
 
+        if (tracepoint_enabled(ruby_vm, find_require_entry)) {
+                tracepoint(ruby_vm, find_require_entry, StringValueCStr(fname));
+        }
 	RUBY_DTRACE_HOOK(FIND_REQUIRE_ENTRY, StringValuePtr(fname));
 
 	path = rb_str_encode_ospath(fname);
 	found = search_required(path, &path, safe);
 
+        if (tracepoint_enabled(ruby_vm, find_require_return)) {
+                tracepoint(ruby_vm, find_require_return, StringValueCStr(fname));
+        }
 	RUBY_DTRACE_HOOK(FIND_REQUIRE_RETURN, StringValuePtr(fname));
 	if (found) {
 	    if (!path || !(ftptr = load_lock(RSTRING_PTR(path)))) {
@@ -1022,6 +1038,9 @@ rb_require_internal(VALUE fname, int safe)
 
     th->errinfo = errinfo;
 
+    if (tracepoint_enabled(ruby_vm, require_return)) {
+            tracepoint(ruby_vm, require_return, StringValueCStr(fname));
+    }
     RUBY_DTRACE_HOOK(REQUIRE_RETURN, StringValuePtr(fname));
 
     return result;

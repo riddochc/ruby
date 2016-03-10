@@ -16,6 +16,8 @@
 #include "probes.h"
 #include "probes_helper.h"
 
+#include "lttng_points.h"
+
 /* control stack frame */
 
 #ifndef INLINE
@@ -1625,6 +1627,9 @@ vm_call_cfunc_with_frame(rb_thread_t *th, rb_control_frame_t *reg_cfp, struct rb
     int argc = calling->argc;
 
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(th, me->owner, me->called_id);
+    if (tracepoint_enabled(ruby_vm, c_call_recv)) {
+      tracepoint(ruby_vm, c_call_recv, (long long int)th, rb_class2name(me->owner), rb_id2name(me->called_id), rb_obj_classname(recv));
+    }
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_CALL, recv, me->called_id, me->owner, Qundef);
 
     vm_push_frame(th, NULL, VM_FRAME_MAGIC_CFUNC, recv,
@@ -1645,6 +1650,10 @@ vm_call_cfunc_with_frame(rb_thread_t *th, rb_control_frame_t *reg_cfp, struct rb
 
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_RETURN, recv, me->called_id, me->owner, val);
     RUBY_DTRACE_CMETHOD_RETURN_HOOK(th, me->owner, me->called_id);
+    if (tracepoint_enabled(ruby_vm, c_return_recv)) {
+        tracepoint(ruby_vm, c_return_recv, (long long int)th, rb_class2name(me->owner), rb_id2name(me->called_id),
+                   rb_obj_classname(recv),  rb_obj_classname(val));
+    }
 
     return val;
 }
@@ -1695,6 +1704,9 @@ vm_call_cfunc(rb_thread_t *th, rb_control_frame_t *reg_cfp, struct rb_calling_in
     if (len >= 0) rb_check_arity(calling->argc, len, len);
 
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(th, me->owner, me->called_id);
+    if (tracepoint_enabled(ruby_vm, c_call_recv)) {
+        tracepoint(ruby_vm, c_call_recv, (long long int)th, rb_class2name(me->owner), rb_id2name(me->called_id),  rb_obj_classname(recv));
+    }
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_CALL, recv, me->called_id, me->owner, Qnil);
 
     if (!(cc->me->def->flag & METHOD_VISI_PROTECTED) &&
@@ -1706,7 +1718,9 @@ vm_call_cfunc(rb_thread_t *th, rb_control_frame_t *reg_cfp, struct rb_calling_in
 
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_RETURN, recv, me->called_id, me->owner, val);
     RUBY_DTRACE_CMETHOD_RETURN_HOOK(th, me->owner, me->called_id);
-
+    if (tracepoint_enabled(ruby_vm, c_return_recv)) {
+        tracepoint(ruby_vm, c_return_recv, (long long int)th, rb_class2name(me->owner), rb_id2name(me->called_id),  rb_obj_classname(recv), rb_obj_classname(val));
+    }
     return val;
 }
 

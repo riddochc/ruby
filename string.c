@@ -19,6 +19,8 @@
 #include <assert.h>
 #include "id.h"
 
+#include "lttng_points.h"
+
 #define BEG(no) (regs->beg[(no)])
 #define END(no) (regs->end[(no)])
 
@@ -633,6 +635,10 @@ str_alloc(VALUE klass)
 static inline VALUE
 empty_str_alloc(VALUE klass)
 {
+    if (tracepoint_enabled(ruby_vm, string_alloc)) {
+      tracepoint(ruby_vm, string_alloc, 0);
+    }
+
     RUBY_DTRACE_CREATE_HOOK(STRING, 0);
     return str_alloc(klass);
 }
@@ -662,6 +668,11 @@ str_new0(VALUE klass, const char *ptr, long len, int termlen)
     }
     STR_SET_LEN(str, len);
     TERM_FILL(RSTRING_PTR(str) + len, termlen);
+
+    if (tracepoint_enabled(ruby_vm, string_new)) {
+      tracepoint(ruby_vm, string_new, RSTRING_LEN(str), RSTRING_PTR(str));
+    }
+
     return str;
 }
 
@@ -760,6 +771,11 @@ str_new_static(VALUE klass, const char *ptr, long len, int encindex)
 	RBASIC(str)->flags |= STR_NOFREE;
     }
     rb_enc_associate_index(str, encindex);
+
+    if (tracepoint_enabled(ruby_vm, string_new_static)) {
+      tracepoint(ruby_vm, string_new_static, RSTRING_LEN(str), RSTRING_PTR(str));
+    }
+
     return str;
 }
 
@@ -1318,6 +1334,9 @@ VALUE
 rb_str_resurrect(VALUE str)
 {
     RUBY_DTRACE_CREATE_HOOK(STRING, RSTRING_LEN(str));
+    if (tracepoint_enabled(ruby_vm, string_resurrect)) {
+      tracepoint(ruby_vm, string_resurrect, RSTRING_LEN(str), RSTRING_PTR(str));
+    }
     return str_duplicate(rb_cString, str);
 }
 

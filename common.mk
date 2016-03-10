@@ -70,6 +70,7 @@ COMMONOBJS    = array.$(OBJEXT) \
 		hash.$(OBJEXT) \
 		inits.$(OBJEXT) \
 		io.$(OBJEXT) \
+		lttng_points.$(OBJEXT) \
 		marshal.$(OBJEXT) \
 		math.$(OBJEXT) \
 		node.$(OBJEXT) \

@@ -23,6 +23,8 @@
 #include "probes.h"
 #include "probes_helper.h"
 
+#include "lttng_points.h"
+
 VALUE rb_str_append_literal(VALUE str, VALUE str2);
 
 static inline VALUE *
@@ -435,6 +437,9 @@ rb_vm_pop_cfunc_frame(void)
 
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_RETURN, th->cfp->self, me->called_id, me->owner, Qnil);
     RUBY_DTRACE_CMETHOD_RETURN_HOOK(th, me->owner, me->called_id);
+    if (tracepoint_enabled(ruby_vm, c_return)) {
+      tracepoint(ruby_vm, c_return, (long long int)th, rb_class2name(me->owner), rb_id2name(me->called_id));
+    }
     vm_pop_frame(th);
 }
 
@@ -934,10 +939,16 @@ invoke_bmethod(rb_thread_t *th, const rb_iseq_t *iseq, VALUE self, const rb_bloc
 		  iseq->body->stack_max);
 
     RUBY_DTRACE_METHOD_ENTRY_HOOK(th, me->owner, me->called_id);
+    if (tracepoint_enabled(ruby_vm, ruby_call)) {
+      tracepoint(ruby_vm, ruby_call, (long long int)th, rb_class2name(me->owner), rb_id2name(me->called_id));
+    }
     EXEC_EVENT_HOOK(th, RUBY_EVENT_CALL, self, me->called_id, me->owner, Qnil);
     ret = vm_exec(th);
     EXEC_EVENT_HOOK(th, RUBY_EVENT_RETURN, self, me->called_id, me->owner, ret);
     RUBY_DTRACE_METHOD_RETURN_HOOK(th, me->owner, me->called_id);
+    if (tracepoint_enabled(ruby_vm, ruby_return)) {
+      tracepoint(ruby_vm, ruby_return, (long long int)th, rb_class2name(me->owner), rb_id2name(me->called_id));
+    }
     return ret;
 }
 
@@ -1508,6 +1519,9 @@ hook_before_rewind(rb_thread_t *th, rb_control_frame_t *cfp, int will_finish_vm_
     switch (VM_FRAME_TYPE(th->cfp)) {
       case VM_FRAME_MAGIC_METHOD:
 	RUBY_DTRACE_METHOD_RETURN_HOOK(th, 0, 0);
+      if (tracepoint_enabled(ruby_vm, ruby_return_empty)) {
+        tracepoint(ruby_vm, ruby_return_empty, (long long int)th);
+      }
 	EXEC_EVENT_HOOK_AND_POP_FRAME(th, RUBY_EVENT_RETURN, th->cfp->self, 0, 0, Qnil);
 	break;
       case VM_FRAME_MAGIC_BLOCK:
@@ -1673,6 +1687,11 @@ vm_exec(rb_thread_t *th)
 		RUBY_DTRACE_CMETHOD_RETURN_HOOK(th,
 					       rb_vm_frame_method_entry(th->cfp)->owner,
 					       rb_vm_frame_method_entry(th->cfp)->called_id);
+        if (tracepoint_enabled(ruby_vm, c_return)) {
+          tracepoint(ruby_vm, c_return, (long long int)th,
+              rb_class2name(rb_vm_frame_method_entry(th->cfp)->owner),
+              rb_id2name(rb_vm_frame_method_entry(th->cfp)->called_id));
+        }
 	    }
 	    th->cfp = RUBY_VM_PREVIOUS_CONTROL_FRAME(th->cfp);
 	}
