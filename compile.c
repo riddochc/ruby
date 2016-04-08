@@ -192,9 +192,18 @@ r_value(VALUE value)
 #define ADD_INSN(seq, line, insn) \
   ADD_ELEM((seq), (LINK_ELEMENT *) new_insn_body(iseq, (line), BIN(insn), 0))
 
+/* insert an instruction before prev */
+#define INSERT_BEFORE_INSN(prev, line, insn) \
+  INSERT_ELEM_PREV(&(prev)->link, (LINK_ELEMENT *) new_insn_body(iseq, (line), BIN(insn), 0))
+
 /* add an instruction with some operands (1, 2, 3, 5) */
 #define ADD_INSN1(seq, line, insn, op1) \
   ADD_ELEM((seq), (LINK_ELEMENT *) \
+           new_insn_body(iseq, (line), BIN(insn), 1, (VALUE)(op1)))
+
+/* insert an instruction with some operands (1, 2, 3, 5) before prev */
+#define INSERT_BEFORE_INSN1(prev, line, insn, op1) \
+  INSERT_ELEM_PREV(&(prev)->link, (LINK_ELEMENT *) \
            new_insn_body(iseq, (line), BIN(insn), 1, (VALUE)(op1)))
 
 #define LABEL_REF(label) ((label)->refcnt++)
@@ -2228,8 +2237,12 @@ iseq_peephole_optimize(rb_iseq_t *iseq, LINK_ELEMENT *list, const int do_tailcal
 
 	if (piobj) {
 	    struct rb_call_info *ci = (struct rb_call_info *)piobj->operands[0];
-	    rb_iseq_t *blockiseq = (rb_iseq_t *)piobj->operands[1];
-	    if (blockiseq == 0) {
+	    if (piobj->insn_id == BIN(send) || piobj->insn_id == BIN(invokesuper)) {
+		if (piobj->operands[2] == 0) { /* no blockiseq */
+		    ci->flag |= VM_CALL_TAILCALL;
+		}
+	    }
+	    else {
 		ci->flag |= VM_CALL_TAILCALL;
 	    }
 	}
@@ -2979,9 +2992,10 @@ compile_massign_lhs(rb_iseq_t *iseq, LINK_ANCHOR *ret, NODE *node)
 {
     switch (nd_type(node)) {
       case NODE_ATTRASGN: {
-	INSN *iobj, *topdup;
+	INSN *iobj;
 	struct rb_call_info *ci;
 	VALUE dupidx;
+	int line = nd_line(node);
 
 	COMPILE_POPED(ret, "masgn lhs (NODE_ATTRASGN)", node);
 
@@ -2990,9 +3004,13 @@ compile_massign_lhs(rb_iseq_t *iseq, LINK_ANCHOR *ret, NODE *node)
 	ci->orig_argc += 1;
 	dupidx = INT2FIX(ci->orig_argc);
 
-	topdup = new_insn_body(iseq, nd_line(node), BIN(topn), 1, dupidx);
-	INSERT_ELEM_PREV(&iobj->link, &topdup->link);
-	ADD_INSN(ret, nd_line(node), pop);	/* result */
+	INSERT_BEFORE_INSN1(iobj, line, topn, dupidx);
+	if (ci->flag & VM_CALL_ARGS_SPLAT) {
+	    --ci->orig_argc;
+	    INSERT_BEFORE_INSN1(iobj, line, newarray, INT2FIX(1));
+	    INSERT_BEFORE_INSN(iobj, line, concatarray);
+	}
+	ADD_INSN(ret, line, pop);	/* result */
 	break;
       }
       case NODE_MASGN: {
@@ -8223,7 +8241,7 @@ ibf_load_setup(struct ibf_load *load, VALUE loader_obj, VALUE str)
 	rb_raise(rb_eRuntimeError, "broken binary format");
     }
     if (strncmp(load->header->magic, "YARB", 4) != 0) {
-	rb_raise(rb_eRuntimeError, "unkown binary format");
+	rb_raise(rb_eRuntimeError, "unknown binary format");
     }
     if (load->header->major_version != ISEQ_MAJOR_VERSION ||
 	load->header->minor_version != ISEQ_MINOR_VERSION) {
