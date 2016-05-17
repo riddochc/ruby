@@ -1,3 +1,343 @@
+Sun May 15 02:33:52 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* lib/mkmf.rb (pkg_config): use xsystem consistently to set up
+	  library path environment variable as well as latter pkg-config
+	  calls.  [ruby-dev:49619] [Bug #12379]
+
+Fri May  6 02:30:32 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* lib/optparse.rb: [DOC] fix example code.  base on the code by
+	  Semyon Gaivoronskiy in [ruby-core:75224].  [Bug #12323]
+
+Fri May  6 02:28:31 2016  Masaki Suketa <masaki.suketa@nifty.ne.jp>
+
+	* ext/win32ole/win32ole.c (ole_vstr2wc, ole_variant2val): fix blank
+	  string conversion.
+	  [Bug #11880]
+	  Thanks Akio Tajima for the patch!
+
+Fri May  6 02:24:13 2016  Kazuhiro NISHIYAMA  <zn@mbf.nifty.com>
+
+	* bignum.c: [DOC] Update result of 123456789 ** -2.
+	  [ruby-dev:49606] [Bug #12339]
+
+Wed May  4 02:38:08 2016  Yuichiro Kaneko  <yui-knk@ruby-lang.org>
+
+	* internal.h (RCOMPLEX_SET_IMAG): undef RCOMPLEX_SET_IMAG
+	  instead of duplicated undef RCOMPLEX_SET_REAL.
+
+Wed May  4 02:38:08 2016  Yuichiro Kaneko  <yui-knk@ruby-lang.org>
+
+	* complex.c (rb_complex_set_imag): Fix to properly set imag
+	  of complex.
+
+Tue Apr 26 23:34:45 2016  CHIKANAGA Tomoyuki  <nagachika@ruby-lang.org>
+
+	* version.h: Bump versionto 2.3.2.
+
+Tue Apr 26 02:58:51 2016  Marcus Stollsteimer  <sto.mar@web.de>
+
+	* doc/extension.rdoc: Improvements to english grammers.
+	  [Bug #12246][ruby-core:74792][ci skip]
+
+Tue Apr 26 02:58:51 2016  craft4coder  <yooobuntu@163.com>
+
+	* doc/extension.rdoc: [DOC] `nul` should be uppercase.
+	  change 'nul' => 'NUL'.  [Fix GH-1172]
+
+Tue Apr 26 02:54:57 2016  Marcus Stollsteimer  <sto.mar@web.de>
+
+	* encoding.c: Fix return value of `Encoding::ISO8859_1.name`
+	  [Bug #12313][ruby-core:75147][ci skip]
+	* ext/bigdecimal/bigdecimal.c: Fix code sample of `BigDecimal.new`
+
+Mon Apr 25 02:29:07 2016  Rei Odaira  <Rei.Odaira@gmail.com>
+
+	* configure.in: add missing -lm for AIX.
+
+Mon Apr 25 02:29:07 2016  Rei Odaira  <Rei.Odaira@gmail.com>
+
+	* configure.in: don't use the system-provided round(3) on AIX.
+	  In AIX, round(0.49999999999999994) returns 1.0.
+	  Use round() in numeric.c instead.
+
+Sun Apr 24 03:05:47 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* ruby.c: cygwin does not use w32_cmdvector, command line can be
+	  other than UTF-8.  [ruby-dev:49519] [Bug #12184]
+
+Sat Apr 23 01:01:13 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* eval_jump.c (exec_end_procs_chain): restore previous error info
+	  for each end procs.  [ruby-core:75038] [Bug #12302]
+
+Sat Apr 23 00:51:51 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* compile.c (new_label_body): initialize bit fields, since
+	  compile_data_alloc does not clear the memory.  [Bug #12082]
+
+Sat Apr 23 00:51:51 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* compile.c (iseq_optimize): disable tail call optimization in
+	  rescued, rescue, and ensure blocks.
+	  [ruby-core:73871] [Bug #12082]
+
+Sat Apr 23 00:33:04 2016  NARUSE, Yui  <naruse@ruby-lang.org>
+
+	* ext/nkf/nkf-utf8/nkf.c (mime_putc): fix typo.
+	  [Bug #12202] [ruby-core:74802]
+
+Sat Apr 23 00:33:04 2016  NARUSE, Yui  <naruse@ruby-lang.org>
+
+	* ext/nkf/nkf-utf8/nkf.c: Merge upstream 4f3edf80a0.
+	  patched by Anton Sivakov [Bug #12201] [Bug #12202]
+
+Sat Apr 23 00:29:15 2016  NARUSE, Yui  <naruse@ruby-lang.org>
+
+	* lib/securerandom.rb (gen_random): to avoid blocking on Windows.
+	  On Windows OpenSSL RAND_bytes (underlying implementation is
+	  RAND_poll in crypto/rand/rand_win.c) may be blocked at
+	  NetStatisticsGet.
+	  https://wiki.openssl.org/index.php/Random_Numbers#Windows_Issues
+	  Instead of this, use Random.raw_seed directly (whose implementation
+	  CryptGenRandom is one of the source of
+	  entropy of RAND_poll on Windows).
+	  https://wiki.openssl.org/index.php/Random_Numbers
+	  Note: CryptGenRandom function is PRNG and doesn't check its entropy,
+	  so it won't block. [Bug #12139]
+	  https://msdn.microsoft.com/ja-jp/library/windows/desktop/aa379942.aspx
+	  https://tools.ietf.org/html/rfc4086#section-7.1.3
+	  https://eprint.iacr.org/2007/419.pdf
+	  http://www.cs.huji.ac.il/~dolev/pubs/thesis/msc-thesis-leo.pdf
+
+Sat Apr 23 00:25:26 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* miniinit.c (Init_enc): add some common aliases of built-in
+	  encodings.  [ruby-core:72481] [Bug #11872]
+
+Sat Apr 23 00:13:50 2016  sorah (Shota Fukumori)  <her@sorah.jp>
+
+	* lib/forwardable.rb: Convert given accessors to String.
+
+	  r53381 changed to accept only Symbol or String for accessors, but
+	  there are several rubygems that pass classes (e.g. Array,
+	  Hash, ...) as accessors. Prior r53381, it was accepted because Class#to_s
+	  returns its class name. After r53381 given accessors are checked
+	  with define_method, but it accepts only Symbol or String, otherwise
+	  raises TypeError.
+
+	      def_delegator Foo, :some_method
+
+	  This change is to revert unexpected incompatibility. But this behavior
+	  may change in the future.
+
+Sat Apr 23 00:02:09 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* configure.in: check if succeeded in creating config.h.
+
+	* tool/ifchange: ignore failures when TEST_COLORS unmatched. just
+	  use the default value if expected name is not contained in it.
+	  [ruby-core:75046] [Bug #12303]
+
+Fri Apr 22 23:47:05 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* doc/regexp.rdoc (comments): [DOC] terminators cannot appear in
+	  comments.  [ruby-core:74838] [Bug #12256]
+
+Fri Apr 22 23:44:07 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* extension.rdoc, extension.ja.rdoc: [DOC] Fix some errors.
+	  Renamed files, wrong method names or argument types; the example
+	  GetDBM macro is now updated to the current version of the actual
+	  code.  patch by Marcus Stollsteimer in [ruby-core:74690].
+	  [Bug #12228]
+
+Fri Apr 22 23:32:19 2016  Tanaka Akira  <akr@fsij.org>
+
+	* test/ruby/test_time_tz.rb: Tests depends on Europe/Moscow removed
+	  to avoid test failures due to the tzdata change.
+	  https://github.com/eggert/tz/commit/8ee11a301cf173afb0c76e0315b9f9ec8ebb9d95
+	  Found by naruse.
+
+Tue Apr 19 02:32:50 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* configure.in (rb_cv_lgamma_r_m0): fix the condition for
+	  lgamma_r(-0.0).  [Bug #12249]
+
+Tue Apr 19 02:32:50 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* configure.in (rb_cv_lgamma_r_m0): check if lgamma_r(-0.0)
+	  returns negative infinity.  [Bug #12249]
+
+	* math.c (ruby_lgamma_r): define by the configured result.
+
+Tue Apr 19 02:32:50 2016  cremno phobia  <cremno@mail.ru>
+
+	* math.c (ruby_lgamma_r): missing/lgamma_r.c is used on Windows,
+	  since msvcrt does not provide it.
+
+	* missing/lgamma_r.c (lgamma_r): fix lgamma(-0.0).
+	  [ruby-core:74823] [Bug #12249]
+
+Tue Apr 19 02:32:50 2016  NAKAMURA Usaku  <usa@ruby-lang.org>
+
+	* math.c (ruby_lgamma_r): mswin's lgamma_r also seems to be wrong.
+	  cf. [Bug #12249]
+
+Tue Apr 19 02:32:50 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* math.c (ruby_tgamma): fix tgamma(-0.0) on mingw.
+	  [ruby-core:74817] [Bug #12249]
+
+Tue Apr 19 01:53:32 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* defs/keywords (alias, undef): symbol literals are allowed.
+
+	* parse.y (parse_percent): should parse symbol literals for alias
+	  and undef.  [ruby-dev:47681] [Bug #8851]
+
+Mon Apr 18 18:05:29 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* struct.c (struct_make_members_list, rb_struct_s_def): member
+	  names should be unique. [ruby-core:74971] [Bug #12291]
+
+	* struct.c (struct_make_members_list): extract making member name
+	  list from char* va_list, with creating symbols without
+	  intermediate IDs.
+
+Mon Apr 18 17:54:40 2016  Joe Swatosh  <joe.swatosh@gmail.com>
+
+	* ext/win32/lib/win32/registry.rb (DeleteValue, DeleteKey): fix
+	  API names.  [ruby-core:74863] [Bug #12264]
+
+Mon Apr 18 17:27:30 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* compile.c (iseq_peephole_optimize): should not replace the
+	  current target INSN, not to follow the replaced dangling link in
+	  the caller.  [ruby-core:74993] [Bug #11816]
+
+Mon Apr 18 17:18:25 2016  cremno phobia  <cremno@mail.ru>
+
+	* cont.c (fiber_initialize_machine_stack_context): fix wrong
+	  _MSC_VER check, should be decimal but not hexadecimal.
+	  [ruby-core:74936] [Bug #12279]
+
+Mon Apr 18 17:18:25 2016  cremno phobia  <cremno@mail.ru>
+
+	* cont.c (fiber_initialize_machine_stack_context): fix wrong
+	  _MSC_VER check, should be decimal but not hexadecimal.
+	  [ruby-core:74936] [Bug #12279]
+
+Mon Apr 18 17:08:10 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* vm_core.h (rb_vm_struct): make at_exit a single linked list but
+	  not RArray, not to mark the registered functions by the write
+	  barrier.  based on the patches by Evan Phoenix.
+	  [ruby-core:73908] [Bug #12095]
+
+Mon Apr 18 16:56:31 2016  Benoit Daloze  <eregontp@gmail.com>
+
+	* thread.c (update_coverage): Do not track coverage in loaded files
+	  after Coverage.result. Avoids out-of-bounds access. [Bug #12237]
+
+	* ext/coverage/coverage.c (coverage_clear_result_i): document.
+
+Mon Apr 18 16:33:50 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* ext/date/date_core.c (Init_date_core): [DOC] fix misplaced doc
+	  of DateTime.  [ruby-core:74729] [Bug #12233]
+
+Mon Apr 18 13:48:05 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* cygwin/GNUmakefile.in (MSYS2_ARG_CONV_EXCL_PARAM):
+	  * add missing parentheses and remove double quotes.
+	  * rename to get rid of recursive references.
+	  * as --excludes-dir option is for a path name, its argument
+	    should be converted.
+	  [ruby-dev:49526] [Bug #12199]
+
+Mon Apr 18 13:48:05 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* common.mk (TEST_EXCLUDES, EXCLUDE_TESTFRAMEWORK): use full spell
+	  long option.
+
+	* cygwin/GNUmakefile.in (MSYS2_ARG_CONV_EXCL): suppress path name
+	  conversions by msys2.  [ruby-dev:49525] [Bug #12199]
+
+Mon Apr 18 13:48:05 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* test/lib/test/unit.rb (Options#non_options): make regexp name
+	  options prefixed with "!" negative filters.
+
+	* common.mk (TEST_EXCLUDES): use negative filter to exclude memory
+	  leak tests.  -x option excludes test files, not test methods.
+
+Sun Apr 17 04:30:13 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* parse.y (parse_ident): allow keyword arguments just after a
+	  method where the same name local variable is defined.
+	  [ruby-core:73816] [Bug#12073]
+
+Sun Apr 17 04:20:40 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* eval.c (setup_exception): set the cause only if it is explicitly
+	  given or not set yet.  [Bug #12068]
+
+Sat Apr 16 00:56:45 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* thread.c (rb_thread_setname): defer setting native thread name
+	  set in initialize until the native thread is created.
+	  [ruby-core:74963] [Bug #12290]
+
+Fri Apr 15 21:10:00 2016  SHIBATA Hiroshi  <hsbt@ruby-lang.org>
+
+	* lib/irb/ext/save-history.rb: Fix NoMethodError when method is not defined.
+
+Fri Apr 15 14:52:06 2016  Elliot Winkler  <elliot.winkler@gmail.com>
+
+	* lib/forwardable.rb (def_instance_delegator) fix delegating to
+	  'args' and 'block', clashing with local variables in generated
+	  methods.  [ruby-core:72579] [Bug #11916]
+
+	* lib/forwardable.rb (def_single_delegator): ditto.
+
+Fri Apr 15 14:27:48 2016  NARUSE, Yui  <naruse@ruby-lang.org>
+
+	* lib/irb/ext/save-history.rb: suppress warning: method redefined;
+	  discarding old save_history=.
+
+Tue Apr 12 16:15:39 2016  NARUSE, Yui  <naruse@ruby-lang.org>
+
+	* configure.in: improve ICC (Intel C Compiler) support.
+
+	* configure.in (CXX): The name of icc's c++ compiler is `icpc`.
+
+	* configure.in (warnings): Add `-diag-disable=2259` to suppress
+	  noisy warnings: "non-pointer conversion from "..." to "..." may
+	  lose significant bits".
+
+	* configure.in (optflags): Add `-fp-model precise` like -fno-fast-math.
+
+	* lib/mkmf.rb: icc supports -Werror=division-by-zero
+	  and -Werror=deprecated-declarations, but doesn't support
+	  -Wdivision-by-zero and -Wdeprecated-declarations.
+
+Tue Apr 12 14:29:01 2016  Kazuki Yamaguchi  <k@rhe.jp>
+
+	* ext/openssl/extconf.rb: check SSL_CTX_set_next_proto_select_cb
+	  function rather than OPENSSL_NPN_NEGOTIATED macro. it exists
+	  even if it is disabled by OpenSSL configuration.
+	  [ruby-core:74384] [Bug #12182]
+
+	* ext/openssl/ossl_ssl.c: update #ifdef(s) as above.
+
+	* test/openssl/test_ssl.rb: skip NPN tests if NPN is disabled.
+
+Tue Apr 12 14:27:04 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+
+	* lib/uri/http.rb (URI::HTTP#initialize): [DOC] fix example,
+	  missing mandatory arguments.  [ruby-core:74540] [Bug #12215]
+
 Thu Apr  7 01:07:02 2016  Nobuyoshi Nakada  <nobu@ruby-lang.org>
 
 	* sprintf.c (rb_str_format): fix buffer overflow, length must be

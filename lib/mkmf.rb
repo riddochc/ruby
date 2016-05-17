@@ -1787,7 +1787,7 @@ SRC
     elsif ($PKGCONFIG ||=
            (pkgconfig = with_config("pkg-config", ("pkg-config" unless CROSS_COMPILING))) &&
            find_executable0(pkgconfig) && pkgconfig) and
-        system("#{$PKGCONFIG} --exists #{pkg}")
+        xsystem("#{$PKGCONFIG} --exists #{pkg}")
       # default to pkg-config command
       pkgconfig = $PKGCONFIG
       get = proc {|opt|
@@ -2475,6 +2475,9 @@ site-install-rb: install-rb
     if $warnflags = CONFIG['warnflags'] and CONFIG['GCC'] == 'yes'
       # turn warnings into errors only for bundled extensions.
       config['warnflags'] = $warnflags.gsub(/(\A|\s)-Werror[-=]/, '\1-W')
+      if /icc\z/ =~ config['CC']
+        config['warnflags'].gsub!(/(\A|\s)-W(?:division-by-zero|deprecated-declarations)/, '\1')
+      end
       RbConfig.expand(rbconfig['warnflags'] = config['warnflags'].dup)
       config.each do |key, val|
         RbConfig.expand(rbconfig[key] = val.dup) if /warnflags/ =~ val
